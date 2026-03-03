@@ -1,0 +1,49 @@
+name: CI (self-hosted)
+
+on:
+  workflow_dispatch:
+    inputs:
+      module:
+        description: "Module to run on self-hosted"
+        required: true
+        type: choice
+        default: data
+        options:
+          - data
+          - visualization
+
+jobs:
+  selfhosted:
+    runs-on: [self-hosted] 
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install jupyter nbconvert
+
+      - name: Run selected module
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+
+          if [[ "${{ inputs.module }}" == "data" ]]; then
+            python src/load_data.py | tee artifacts/selfhosted.log
+          else
+            jupyter nbconvert --execute notebooks/visualization.ipynb --to html \
+              --output index.html --output-dir artifacts \
+              | tee artifacts/selfhosted.log
+          fi
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-selfhosted-${{ inputs.module }}
+          path: artifacts/
