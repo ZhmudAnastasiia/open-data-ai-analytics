@@ -54,7 +54,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: "Decide whether to run this module (bonus: skip if not touched)"
+      - name: Decide whether to run this module (bonus: skip if not touched)
         id: decide
         shell: bash
         run: |
