@@ -1,0 +1,6 @@
+jupyter
+nbconvert
+pandas
+matplotlib
+scikit-learn
+numpy
