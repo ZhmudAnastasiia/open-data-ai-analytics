@@ -20,29 +20,29 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        shell: bash
+      - name: Install dependencies (Windows PowerShell)
+        shell: powershell
         run: |
-          set -euo pipefail
-          python3 -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          python -m pip install --upgrade pip
+          if (Test-Path requirements.txt) { pip install -r requirements.txt }
           pip install jupyter nbconvert
 
       - name: Create artifacts dir
-        shell: bash
-        run: mkdir -p artifacts
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
 
       - name: Run selected module
-        shell: bash
+        shell: powershell
         run: |
-          set -euo pipefail
-          if [[ "${{ inputs.module }}" == "data" ]]; then
-            python3 src/load_data.py | tee artifacts/selfhosted.log
-          else
-            jupyter nbconvert --execute notebooks/visualization.ipynb --to html \
-              --output visualization-selfhosted.html --output-dir artifacts \
-              | tee artifacts/selfhosted.log
-          fi
+          if ("${{ inputs.module }}" -eq "data") {
+            python src\load_data.py | Tee-Object -FilePath artifacts\selfhosted.log
+          }
+          else {
+            jupyter nbconvert --execute notebooks\visualization.ipynb --to html `
+              --output visualization-selfhosted.html --output-dir artifacts `
+              | Tee-Object -FilePath artifacts\selfhosted.log
+          }
 
       - name: Upload artifacts
         if: always()
