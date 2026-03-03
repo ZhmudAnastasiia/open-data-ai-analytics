@@ -36,17 +36,17 @@ jobs:
           - module: research
             path: src/data_research.ipynb
             kind: notebook
-            command: "jupyter nbconvert --execute src/data_research.ipynb --to html --output artifacts/research.html"
+            command: "jupyter nbconvert --execute src/data_research.ipynb --to html --output research.html --output-dir artifacts"
 
           - module: quality
             path: notebooks/data_quality.ipynb
             kind: notebook
-            command: "jupyter nbconvert --execute notebooks/data_quality.ipynb --to html --output artifacts/quality.html"
+            command: "jupyter nbconvert --execute notebooks/data_quality.ipynb --to html --output quality.html --output-dir artifacts"
 
           - module: visualization
             path: notebooks/visualization.ipynb
             kind: notebook
-            command: "jupyter nbconvert --execute notebooks/visualization.ipynb --to html --output artifacts/visualization.html"
+            command: "jupyter nbconvert --execute notebooks/visualization.ipynb --to html --output visualization.html --output-dir artifacts"
 
     steps:
       - name: Checkout
@@ -89,14 +89,17 @@ jobs:
           while IFS= read -r f; do
             [[ -z "$f" ]] && continue
             if [[ "$f" =~ $SHARED_REGEX ]]; then
-              RUN=true; break
+              RUN=true
+              break
             fi
             if [[ "$f" == "$TARGET" || "$TARGET" == "$f" ]]; then
-              RUN=true; break
+              RUN=true
+              break
             fi
             TOPDIR="${TARGET%%/*}"
             if [[ "$f" == "$TOPDIR/"* ]]; then
-              RUN=true; break
+              RUN=true
+              break
             fi
           done <<< "$CHANGED"
 
